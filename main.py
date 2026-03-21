@@ -12,6 +12,9 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     time = pygame.time.Clock()
     dt = 0
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+    Player.containers = (updatable, drawable)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
     while True:
@@ -21,9 +24,14 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
+        # Player update events should come before clear the screen and drawing new state
+        updatable.update(dt)
+
         screen.fill("black")
-        player.draw(screen)
+        for drawing in drawable:
+            drawing.draw(screen)
         pygame.display.flip()
+        # Locking frame to 60, amount of time since last frame
         dt = (time.tick(60)) / 1000
 
 

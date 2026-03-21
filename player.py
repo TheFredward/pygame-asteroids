@@ -1,7 +1,7 @@
 import pygame
 
 from circleshape import CircleShape
-from constants import LINE_WIDTH, PLAYER_RADIUS
+from constants import LINE_WIDTH, PLAYER_RADIUS, PLAYER_SPEED, PLAYER_TURN_SPEED
 
 
 class Player(CircleShape):
@@ -19,3 +19,32 @@ class Player(CircleShape):
 
     def draw(self, screen):
         pygame.draw.polygon(screen, "white", self.triangle(), LINE_WIDTH)
+
+    def rotate(self, dt):
+        """
+        dt, int, current locked frame rate
+        changes the players rotation based on dt
+        """
+        self.rotation += PLAYER_TURN_SPEED * dt
+
+    def move(self, dt):
+        unit_vector = pygame.Vector2(0, 1)
+        rotated_vector = unit_vector.rotate(self.rotation)
+        rotated_vector_with_speed = rotated_vector * PLAYER_SPEED * dt
+        self.position += rotated_vector_with_speed
+
+    def update(self, dt):
+        """
+        dt, int, current locked frame rate
+        Read key input and rotate player w.r.t frame rate
+        """
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_a]:
+            self.rotate(-dt)
+        if keys[pygame.K_d]:
+            self.rotate(dt)
+        if keys[pygame.K_w]:
+            self.move(dt)
+        if keys[pygame.K_s]:
+            self.move(-dt)
