@@ -4,6 +4,7 @@ from circleshape import CircleShape
 from constants import (
     LINE_WIDTH,
     PLAYER_RADIUS,
+    PLAYER_SHOOT_COOLDOWN_SECONDS,
     PLAYER_SHOOT_SPEED,
     PLAYER_SPEED,
     PLAYER_TURN_SPEED,
@@ -15,6 +16,7 @@ class Player(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
+        self.bullet_cooldown = 0
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -46,6 +48,7 @@ class Player(CircleShape):
         Read key input and rotate player w.r.t frame rate
         """
         keys = pygame.key.get_pressed()
+        self.bullet_cooldown -= dt
 
         if keys[pygame.K_a]:
             self.rotate(-dt)
@@ -59,6 +62,9 @@ class Player(CircleShape):
             self.shoot()
 
     def shoot(self):
+        if self.bullet_cooldown > 0:
+            return
+        self.bullet_cooldown = PLAYER_SHOOT_COOLDOWN_SECONDS
         bullet = Shot(self.position.x, self.position.y)
         bullet.velocity = (
             pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
