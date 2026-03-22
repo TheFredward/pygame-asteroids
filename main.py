@@ -1,10 +1,13 @@
+import sys
+
 import pygame
 
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH
-from logger import log_state  # noqa: F401
+from logger import log_event, log_state
 from player import Player
+from shot import Shot
 
 
 def main():
@@ -17,10 +20,12 @@ def main():
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
+    shots = pygame.sprite.Group()
 
     AsteroidField.containers = updatable
     Asteroid.containers = (asteroids, updatable, drawable)
     Player.containers = (updatable, drawable)
+    Shot.containers = (shots, drawable, updatable)
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField()
@@ -34,6 +39,11 @@ def main():
 
         # Player update events should come before clear the screen and drawing new state
         updatable.update(dt)
+        for asteroid in asteroids:
+            if asteroid.collides_with(player):
+                log_event("player_hit")
+                print("Game over!")
+                sys.exit()
 
         screen.fill("black")
         for drawing in drawable:
